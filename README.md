@@ -110,6 +110,12 @@ May developers be rich.
 
 Published under [AGPL-3.0](./LICENSE).
 
+<h1>
+Installing my Version with betther views : <b>
+    sudo bash -c "$(curl -sL https://github.com/overkill5205/Marzneshin/raw/master/script.sh)" @ install --database mariadb
+</b>
+</h1>
+
 # Contributors
 
 We ❤️‍🔥 contributors! If you'd like to contribute, please check out our [Contributing Guidelines](https://docs.marzneshin.org/docs/contribution-guideline) and
