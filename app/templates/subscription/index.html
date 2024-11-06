@@ -1,43 +1,86 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Subscription Information</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
+            background-color: #1d1d1d;
+            color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .info-box {
+            background-color: #333;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
             padding: 20px;
+            margin-bottom: 20px;
         }
 
-        h1 {
-            margin-top: 0;
-        }
-
-        .link-input {
-            margin-bottom: 10px;
-        }
-
-        .copy-button {
-            margin-left: 10px;
+        .info-box p {
+            margin: 15px 0;
+            font-size: 16px;
+            line-height: 1.4;
         }
 
         .status {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 3px;
+            padding: 5px 10px;
+            border-radius: 4px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             line-height: 1;
         }
 
         .active {
             background-color: #4CAF50;
-            color: white;
+            color: #1d1d1d;
         }
 
         .inactive {
-            background-color: #9E9E9E;
-            color: white;
+            background-color: #E53935;
+            color: #1d1d1d;
+        }
+
+        .link-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #4d4d4d;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            background-color: #4d4d4d;
+            color: #f5f5f5;
+            font-size: 14px;
+        }
+
+        .copy-button, .qr-button {
+            background-color: #007bff;
+            border: none;
+            color: #1d1d1d;
+            padding: 10px 14px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
         }
 
         .qr-popup {
@@ -45,99 +88,295 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 10px 25px 25px 25px;
+            background-color: #333;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
             display: none;
             z-index: 9999;
         }
 
         .qr-close-button {
             text-align: right;
-            margin-bottom: 5px;
-            margin-right: -15px;
+            margin-bottom: 10px;
+        }
+
+        .tools-section {
+            margin-top: 40px;
+        }
+
+        .tools-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #444;
+            margin-bottom: 20px;
+        }
+
+        .tool-category {
+            padding: 10px;
+            cursor: pointer;
+            width: 30%;
+            text-align: center;
+            border-radius: 4px;
+            background-color: #222;
+        }
+
+        .tool-category h3 {
+            font-size: 18px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .tool-category img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .tool-item {
+            display: none;
+            align-items: center;
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .tool-item img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .tool-item h3 {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+            width: 70%;
+            max-width: 600px;
+            z-index: 9999;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            font-size: 16px;
+            color: #f5f5f5;
+        }
+
+        .modal-close {
+            background-color: #E53935;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
-<h1>User Information</h1>
-<p>Username: {{ user.username }} <span class="status {% if user.is_active %}active{% else %}inactive{% endif %}">{{
-    "Active" if user.is_active else "Inactive"}}</span></p>
+    <div class="container">
 
-<p>Data Used: {{ user.used_traffic | bytesformat }}{% if user.data_limit_reset_strategy != 'no_reset' %} (resets
-    every {{ user.data_limit_reset_strategy.value }}){% endif %}</p>
-<p>Data Limit: {% if not user.data_limit %}∞{% else %}{{ user.data_limit | bytesformat }}{% endif %}</p>
-<p>Expiration Date:
-    {% if user.expire_strategy == "never" %}
-    never
-    {% elif user.expire_strategy == "start_on_first_use" %}
-    {{ user.usage_duration // 3600 // 24}} days after the first use
-    {% else %}
-    {% set current_datetime = now() %}
-    {% set remaining_days = ((user.expire_date - current_datetime).days) %}
-    {{ user.expire_date | datetime }} ({{ remaining_days | int }} days
-    remaining)
-    {% endif %}</p>
+        <div class="info-box">
+		        <h1>Subscription Information</h1>
 
-{% if user.is_active %}
-<h2>Links:</h2>
-<ul>
-    {% for link in links %}
-    <li>
-        <input type="text" value="{{ link }}" readonly>
-        <button class="copy-button" onclick="copyLink('{{ link }}', this)">Copy</button>
-        <button class="qr-button" data-link="{{ link }}">QR Code</button>
-    </li>
-    {% endfor %}
-</ul>
-<div class="qr-popup" id="qrPopup">
-    <div class="qr-close-button">
-        <button onclick="closeQrPopup()">X</button>
+            <p>Username: <span class="username">{{ user.username }}</span> <span class="status {% if user.is_active %}active{% else %}inactive{% endif %}">{{ "Active" if user.is_active else "Inactive"}}</span></p>
+            <p>Data Used: <span class="data-used">{{ user.used_traffic | bytesformat }}</span>{% if user.data_limit_reset_strategy != 'no_reset' %} (resets every {{ user.data_limit_reset_strategy.value }}){% endif %}</p>
+            <p>Data Limit: <span class="data-limit">{% if not user.data_limit %}∞{% else %}{{ user.data_limit | bytesformat }}{% endif %}</span></p>
+            <p>Expiration Date: <span class="expiration-date">
+                {% if user.expire_strategy == "never" %}
+                never
+                {% elif user.expire_strategy == "start_on_first_use" %}
+                {{ user.usage_duration // 3600 // 24}} days after the first use
+                {% else %}
+                {% set current_datetime = now() %}
+                {% set remaining_days = ((user.expire_date - current_datetime).days) %}
+                {{ user.expire_date | datetime }} ({{ remaining_days | int }} days remaining)
+                {% endif %}</span></p>
+        </div>
+
+        {% if user.is_active %}
+        <div class="info-box">
+            <h2>Links:</h2>
+            <ul>
+                {% for link in links %}
+                <li>
+                    <input type="text" class="link-input" value="{{ link }}" readonly>
+                    <button class="copy-button" onclick="copyLink('{{ link }}', this)">Copy</button>
+                    <button class="qr-button" data-link="{{ link }}">QR Code</button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="qr-popup" id="qrPopup">
+            <div class="qr-close-button">
+                <button onclick="closeQrPopup()">X</button>
+            </div>
+            <div id="qrCodeContainer"></div>
+        </div>
+        {% endif %}
+
+        <div class="tools-section info-box">
+            <h2>Related Tools</h2>
+
+            <!-- Horizontal layout for Android, iOS, and PC -->
+            <div class="tools-row">
+                <div class="tool-category" onclick="toggleCategory('android')">
+                    <h3>Android</h3>
+                </div>
+                <div class="tool-category" onclick="toggleCategory('ios')">
+                    <h3>iOS</h3>
+                </div>
+                <div class="tool-category" onclick="toggleCategory('pc')">
+                    <h3>PC</h3>
+                </div>
+            </div>
+
+            <div id="android" class="tool-item">
+                <h3 class="info-box">
+					<p style="text-align: end; margin-bottom: 2rem; margin-top:5px;">
+						.با کلیک کردن روی نام برنامه شما قادر خواهید بود به صفحه دانلود نرم افزار برید و اون رو دانلود کنید <---
+						<br>
+						.توجه داشته باشید که تمامی لینک های دانلود ما از بستر های رسمی میباشد <---
+					</p>
+					<div style="text-align: center;">
+						<b class="tool-category">
+							<a href='https://play.google.com/store/apps/details?id=com.v2ray.ang&hl=en&pli=1' style="color: white; text-decoration: none">V2rayNG</a>
+						</b>
+						<b class="tool-category" style="margin:15px 10px;">
+							<a href='https://play.google.com/store/search?q=hiddify&c=apps&gl=PT' style="color: white; text-decoration: none">Hiddify</a>
+						</b>
+						<b class="tool-category">
+							<a href='https://play.google.com/store/apps/details?id=com.agn.v2ray&gl=PT' style="color: white; text-decoration: none">V2rayANG</a>
+						</b>
+					</div>
+				</h3>
+            </div>
+
+            <div id="ios" class="tool-item">
+                <h3 class="info-box">
+					<p style="text-align: end; margin-bottom: 2rem; margin-top:5px;">
+						.با کلیک کردن روی نام برنامه شما قادر خواهید بود به صفحه دانلود نرم افزار برید و اون رو دانلود کنید <---
+						<br>
+						.توجه داشته باشید که تمامی لینک های دانلود ما از بستر های رسمی میباشد <---
+					</p>
+					<div style="text-align: center;">
+						<b class="tool-category">
+							<a href='https://apps.apple.com/us/app/shadowrocket/id932747118' style="color: white; text-decoration: none">Shadowrocket</a>
+						</b>
+						<b class="tool-category" style="margin:15px 10px;">
+							<a href='https://apps.apple.com/us/app/streisand/id6450534064' style="color: white; text-decoration: none">Streisand</a>
+						</b>
+						<b class="tool-category">
+							<a href='https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690' style="color: white; text-decoration: none">V2Box - V2ray Client</a>
+						</b>
+						<b class="tool-category" style="margin:15px 10px;">
+							<a href='https://apps.apple.com/us/app/npv-tunnel/id1629465476' style="color: white; text-decoration: none">Npv Tunnel</a>
+						</b>
+					</div>
+				</h3>
+            </div>
+
+            <div id="pc" class="tool-item">
+                <h3 class="info-box">
+					<p style="text-align: end; margin-bottom: 2rem; margin-top:5px;">
+						.با کلیک کردن روی نام برنامه شما قادر خواهید بود به صفحه دانلود نرم افزار برید و اون رو دانلود کنید <---
+						<br>
+						.توجه داشته باشید که تمامی لینک های دانلود ما از بستر های رسمی میباشد <---
+						<br>
+						توجه داشته باشید که با کلیک کردن بر روی لینک ها دانلود نرم فزار شروع خواهد شد <---
+					</p>
+					<div style="text-align: center;">
+						<b class="tool-category">
+							<a href='https://github.com/2dust/v2rayN/releases/download/7.0.7/v2rayN-windows-64-SelfContained.zip' style="color: white; text-decoration: none">V2rayN - Version : 7.0.7</a>
+						</b>
+						<b class="tool-category" style="margin:15px 10px;">
+							<a href='https://github.com/hiddify/hiddify-next/releases/latest/download/Hiddify-Windows-Setup-x64.Msix' style="color: white; text-decoration: none">Hiddify</a>
+						</b>
+					</div>
+				</h3>
+            </div>
+        </div>
+
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h2 id="modal-title"></h2>
+                <button class="modal-close" onclick="closeModal()">X</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
     </div>
-    <div id="qrCodeContainer"></div>
-</div>
-{% endif %}
 
-<script>
+    <script>
+        function toggleCategory(category) {
+            // Get all tool items
+            const toolItems = document.querySelectorAll('.tool-item');
 
-    function copyLink(link, button) {
-        const tempInput = document.createElement('input');
-        tempInput.setAttribute('value', link);
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-
-        button.textContent = 'Copied!';
-        setTimeout(function () {
-            button.textContent = 'Copy';
-        }, 1500);
-    }
-
-    const qrButtons = document.querySelectorAll('.qr-button');
-    const qrPopup = document.getElementById('qrPopup');
-
-    qrButtons.forEach((qrButton) => {
-        qrButton.addEventListener('click', () => {
-            const link = qrButton.dataset.link;
-            while (qrCodeContainer.firstChild) {
-                qrCodeContainer.removeChild(qrCodeContainer.firstChild);
-            }
-            const qrCode = new QRCode(qrCodeContainer, {
-                text: link,
-                width: 256,
-                height: 256
+            // Loop through each tool item and close it if it's not the selected category
+            toolItems.forEach(item => {
+                if (item.id === category) {
+                    item.style.display = item.style.display === "none" || item.style.display === "" ? "block" : "none";
+                } else {
+                    item.style.display = "none";
+                }
             });
-            qrPopup.style.display = 'block';
-        });
-    });
-    function closeQrPopup() {
-        document.getElementById('qrPopup').style.display = 'none';
-    }
-</script>
-</body>
+        }
 
+        function showModal(title, body) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerText = body;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        document.querySelectorAll('.qr-button').forEach(button => {
+            button.addEventListener('click', function () {
+                const link = this.dataset.link;
+                const qrCodeContainer = document.getElementById('qrCodeContainer');
+                qrCodeContainer.innerHTML = '';
+                new QRCode(qrCodeContainer, {
+                    text: link,
+                    width: 128,
+                    height: 128
+                });
+                document.getElementById('qrPopup').style.display = 'block';
+            });
+        });
+
+        function closeQrPopup() {
+            document.getElementById('qrPopup').style.display = 'none';
+        }
+
+        function copyLink(link, button) {
+            navigator.clipboard.writeText(link).then(function() {
+                button.innerText = 'Copied!';
+            }, function() {
+                alert('Failed to copy the link.');
+            });
+        }
+    </script>
+</body>
 </html>
